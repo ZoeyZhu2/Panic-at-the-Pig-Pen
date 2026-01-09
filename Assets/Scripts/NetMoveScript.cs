@@ -16,6 +16,8 @@ public class NetMoveScript : MonoBehaviour
     
     void Start()
     {
+        Debug.Log("height:" + Camera.main.orthographicSize * 2);
+        Debug.Log("width:" + Camera.main.orthographicSize * 2 * Camera.main.aspect);
     }
     
     void OnEnable()
@@ -58,7 +60,14 @@ public class NetMoveScript : MonoBehaviour
     void FixedUpdate()
     {
         netRB.linearVelocity = new Vector2(moveInput * moveSpeed, 0);
+        if (transform.position.x < -Camera.main.orthographicSize * Camera.main.aspect)
+        {
+            transform.position = new Vector3(-Camera.main.orthographicSize * Camera.main.aspect, transform.position.y, transform.position.z);
+        }
+        else if (transform.position.x > Camera.main.orthographicSize * Camera.main.aspect)
+        {
+            transform.position = new Vector3(Camera.main.orthographicSize * Camera.main.aspect,  transform.position.y, transform.position.z);
+        }
     }
-
 
 }

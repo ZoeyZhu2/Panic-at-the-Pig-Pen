@@ -12,11 +12,18 @@ public class UIScript : MonoBehaviour
     [SerializeField] private Canvas gameStartCanvas;
     private bool gameInProgress = false;
     [SerializeField] private Canvas gameOverCanvas;
-    [SerializeField] private Button restartButton;
-    [SerializeField] private Canvas pauseCanvas;
+    [SerializeField] private Button restartGameButton;
+    // [SerializeField] private Canvas pauseCanvas;
     [SerializeField] private Button pauseButton;
+    [SerializeField] private Button resumeButton;
+    [SerializeField] private Button restartButton;
     [SerializeField] private GameObject pausePanel;
     [SerializeField] private Canvas settingsCanvas;
+
+    [SerializeField] private Button settingsButton;
+    [SerializeField] private Button closeSettingsButton;
+
+    [SerializeField] private Button returnToHomeButton;
 
     [SerializeField] private AudioSource musicAudioSource;
     [SerializeField] private AudioClip backgroundMusicClip;
@@ -25,6 +32,7 @@ public class UIScript : MonoBehaviour
     [SerializeField] private Slider musicVolumeSlider;
     [SerializeField] private TMP_Text musicVolumeText;
     [SerializeField] private AudioMixer audioMixer;
+    private float currentMusicVolume = 0.5f;
 
     private GameInputActions inputActions;
 
@@ -54,10 +62,12 @@ public class UIScript : MonoBehaviour
         inputActions.UI.RestartGame.Enable();
         PauseMusic();
         gameInProgress = false;
+        pauseButton.gameObject.SetActive(false);
     }
     
     private void RestartGame()
     {
+        Debug.Log("RestartGame called");
         Debug.Log("RestartGame: Hiding gameOverCanvas and pausePanel");
         gameOverCanvas.enabled = false;
         pausePanel.SetActive(false);
@@ -67,6 +77,9 @@ public class UIScript : MonoBehaviour
         inputActions.GamePlay.Enable();
         UnpauseMusic();
         gameInProgress = true;
+        pauseButton.gameObject.SetActive(true);
+        score = 0;
+        scoreText.text = "Score: 0";
     }
 
     private void StartGame()
@@ -79,6 +92,9 @@ public class UIScript : MonoBehaviour
         inputActions.UI.RestartGame.Disable();
         PlayMusic();
         gameInProgress = true;
+        pauseButton.gameObject.SetActive(true);
+        score = 0;
+        scoreText.text = "Score: 0";
     }
 
     private void ReturnToHome()
@@ -86,19 +102,22 @@ public class UIScript : MonoBehaviour
         Debug.Log("ReturnToHome: Showing gameStartCanvas, hiding gameOverCanvas, pauseCanvas, settingsCanvas");
         gameStartCanvas.enabled = true;
         gameOverCanvas.enabled = false;
-        pauseCanvas.enabled = false;
+        // pauseCanvas.enabled = false;
         settingsCanvas.enabled = false;
         Time.timeScale = 0;
         inputActions.GamePlay.Disable();
         inputActions.UI.Disable();
         PauseMusic();
         gameInProgress = false;
+        pauseButton.gameObject.SetActive(false);
+        pausePanel.SetActive(false);
     }
 
     private void Pause()
     {
         Debug.Log("Pause: Showing pausePanel");
         pausePanel.SetActive(true);
+        pauseButton.gameObject.SetActive(false);
         Time.timeScale = 0;
         inputActions.GamePlay.Disable();
     }   
@@ -114,6 +133,8 @@ public class UIScript : MonoBehaviour
     private void OpenSettings()
     {
         Debug.Log("OpenSettings: Showing settingsCanvas");
+        // musicVolumeText.text = currentMusicVolume.ToString("0.00");
+        // musicVolumeSlider.value = currentMusicVolume;
         settingsCanvas.enabled = true;
         inputActions.UI.TogglePause.Disable();
     }  
@@ -130,21 +151,31 @@ public class UIScript : MonoBehaviour
         isMusicMuted = !isOn;
         if (isMusicMuted)
         {
-            musicAudioSource.mute = false;
+            musicAudioSource.mute = true;
             isMusicMuted = false;
         }
         else
         {
-            musicAudioSource.mute = true;
+            musicAudioSource.mute = false;
             isMusicMuted = true;
         }
     }
 
     private void ChangeMusicVolume(float volume)
     {
+        currentMusicVolume = volume; 
         musicVolumeText.text = volume.ToString("0.00");
-        float db = Mathf.Log10(volume) * 20;
-        audioMixer.SetFloat("MusicVolume", db);
+        float minDb = -80f;
+        float db;
+        if (volume <= 0.0001f)
+        {
+            db = minDb;
+        }
+       else
+       {
+            db = Mathf.Log10(volume) * 20;
+       }        
+       audioMixer.SetFloat("MusicVolume", db);
     }
 
     private void PlayMusic()
@@ -181,8 +212,13 @@ public class UIScript : MonoBehaviour
         ReturnToHome();
         scoreText.text = "Score: 0";
         highScoreText.text = "High Score: " + PlayerPrefs.GetInt("High Score", 0).ToString();
-        musicVolumeSlider.value = 0.5f;
-        ChangeMusicVolume(0.5f);
+        musicVolumeSlider.value = currentMusicVolume;
+        musicVolumeText.text = currentMusicVolume.ToString("0.00");
+        ChangeMusicVolume(currentMusicVolume);
+        gameOverCanvas.enabled = false;
+        settingsCanvas.enabled = false;
+        pauseButton.gameObject.SetActive(false); 
+        pausePanel.SetActive(false);
 
     }
 
@@ -190,7 +226,12 @@ public class UIScript : MonoBehaviour
     {
         startButton.onClick.AddListener(StartGame);
         pauseButton.onClick.AddListener(Pause);
+        restartGameButton.onClick.AddListener(RestartGame);
         restartButton.onClick.AddListener(RestartGame);
+        resumeButton.onClick.AddListener(Unpause);
+        settingsButton.onClick.AddListener(OpenSettings);
+        closeSettingsButton.onClick.AddListener(CloseSettings);
+        returnToHomeButton.onClick.AddListener(ReturnToHome);
         
         inputActions.UI.TogglePause.performed += ctx =>
         {
@@ -214,7 +255,12 @@ public class UIScript : MonoBehaviour
     {
         startButton.onClick.RemoveListener(StartGame);
         pauseButton.onClick.RemoveListener(Pause);
+        restartGameButton.onClick.RemoveListener(RestartGame);
         restartButton.onClick.RemoveListener(RestartGame);
+        resumeButton.onClick.RemoveListener(Unpause);
+        settingsButton.onClick.RemoveListener(OpenSettings);
+        closeSettingsButton.onClick.RemoveListener(CloseSettings);
+        returnToHomeButton.onClick.RemoveListener(ReturnToHome);
         
         inputActions.UI.TogglePause.performed -= ctx =>
         {

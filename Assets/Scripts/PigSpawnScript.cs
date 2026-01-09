@@ -40,7 +40,10 @@ public class PigSpawnScript : MonoBehaviour
     private void SpawnPig()
     {
         pigType = r.NextDouble();
-        double spawnX = r.NextDouble() * 6 - 3;
+        //double spawnX = r.NextDouble() * 6 - 3;
+        double spawnX = r.NextDouble() * Camera.main.orthographicSize * 2 * Camera.main.aspect - (Camera.main.orthographicSize * 2 * Camera.main.aspect) / 2; 
+        //width is Camera.main.orthographicSize * 2 * Camera.main.aspect
+        //half of width is Camera.main.orthographicSize * Camera.main.aspect
         Vector3 spawnPosition = new Vector3((float)spawnX, 6, 0);
         if (pigType < 0.5)
         {

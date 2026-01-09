@@ -16,6 +16,7 @@ public class GreenPigScript : MonoBehaviour
     {
         if (transform.position.y < - 6)
         {
+            uiScript.AddScore(-1);
             Destroy(this.gameObject);
         }
     }
