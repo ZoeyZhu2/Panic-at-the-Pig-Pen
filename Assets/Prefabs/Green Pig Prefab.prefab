@@ -12,6 +12,7 @@ GameObject:
   - component: {fileID: 238816882725401657}
   - component: {fileID: 8863710323957999043}
   - component: {fileID: 7187620686701558236}
+  - component: {fileID: 7694037452910700823}
   m_Layer: 0
   m_Name: Green Pig Prefab
   m_TagString: Untagged
@@ -156,3 +157,16 @@ Rigidbody2D:
   m_SleepingMode: 1
   m_CollisionDetection: 0
   m_Constraints: 0
+--- !u!114 &7694037452910700823
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 9048473300276223573}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: af4c9154f180b4f69947ce8d4506c388, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::GreenPigScript
+  uiScript: {fileID: 0}
